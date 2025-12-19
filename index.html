@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculette - Addition</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <h1>Calculette</h1>
+    <p class="subtitle">Pour l’instant : addition uniquement</p>
+
+    <section class="calc" aria-label="Calculette">
+      <div class="screen" aria-live="polite">
+        <div id="expression" class="expression">0</div>
+        <div id="result" class="result">0</div>
+      </div>
+
+      <div class="grid">
+        <button class="btn btn-muted" data-action="clear">C</button>
+        <button class="btn btn-muted" data-action="back">⌫</button>
+        <button class="btn btn-muted" data-action="reset">AC</button>
+        <button class="btn btn-op" data-action="plus">+</button>
+
+        <button class="btn" data-digit="7">7</button>
+        <button class="btn" data-digit="8">8</button>
+        <button class="btn" data-digit="9">9</button>
+        <button class="btn btn-muted" disabled>—</button>
+
+        <button class="btn" data-digit="4">4</button>
+        <button class="btn" data-digit="5">5</button>
+        <button class="btn" data-digit="6">6</button>
+        <button class="btn btn-muted" disabled>—</button>
+
+        <button class="btn" data-digit="1">1</button>
+        <button class="btn" data-digit="2">2</button>
+        <button class="btn" data-digit="3">3</button>
+        <button class="btn btn-muted" disabled>—</button>
+
+        <button class="btn" data-action="dot">.</button>
+        <button class="btn" data-digit="0">0</button>
+        <button class="btn btn-eq" data-action="equals">=</button>
+        <button class="btn btn-muted" disabled>—</button>
+      </div>
+    </section>
+
+    <p class="hint">Astuce : tu peux aussi utiliser ton clavier (0-9, +, Entrée, Backspace, Échap).</p>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
