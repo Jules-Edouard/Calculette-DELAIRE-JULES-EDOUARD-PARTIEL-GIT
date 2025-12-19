@@ -1,5 +1,5 @@
 ## Opérations
 - [x] Addition
 - [x] Soustraction
-- [ ] Multiplication
+- [X] Multiplication
 

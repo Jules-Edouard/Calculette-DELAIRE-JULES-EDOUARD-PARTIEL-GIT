@@ -1,95 +1,96 @@
 const expressionEl = document.getElementById("expression");
 const resultEl = document.getElementById("result");
 
-let current = "0";        // nombre en cours de saisie
-let total = null;         // total accumulé
-let hasPlus = false;      // est-ce qu'on a appuyé sur "+"
+let current = "0";
+let total = null;
+let operator = null;
 let justEvaluated = false;
 
 function render() {
-  // Affiche l'expression du type: "12 + 3"
   let expr = "";
-  if (total !== null) expr += formatNumber(total);
-  if (hasPlus) expr += (expr ? " " : "") + "+";
-  if (current !== "0" || (total === null && !hasPlus)) {
-    expr += (expr ? " " : "") + current;
+
+  if (total !== null) {
+    expr += total;
   }
-  expressionEl.textContent = expr || "0";
 
-  // Résultat instantané si possible
-  if (total !== null && hasPlus) {
-    const res = total + parseFloatSafe(current);
-    resultEl.textContent = formatNumber(res);
-  } else {
-    resultEl.textContent = formatNumber(parseFloatSafe(current));
+  if (operator !== null) {
+    expr += " " + operator;
   }
+
+  if (current !== "0" || total === null) {
+    expr += " " + current;
+  }
+
+  expressionEl.textContent = expr.trim();
+  resultEl.textContent = calculatePreview();
 }
 
-function parseFloatSafe(v) {
-  const n = parseFloat(v);
-  return Number.isFinite(n) ? n : 0;
+function calculatePreview() {
+  const currentNumber = parseFloat(current);
+
+  if (total === null || operator === null) {
+    return current;
+  }
+
+  if (operator === "+") {
+    return total + currentNumber;
+  }
+
+  if (operator === "-") {
+    return total - currentNumber;
+  }
+
+  if (operator === "*") {
+    return total * currentNumber;
+  }
+
+  return current;
 }
 
-function formatNumber(n) {
-  // évite l'affichage "1.0000000002" dans certains cas
-  const rounded = Math.round((n + Number.EPSILON) * 1e10) / 1e10;
-  return String(rounded);
-}
-
-function inputDigit(d) {
+function inputDigit(digit) {
   if (justEvaluated) {
-    // après "=", retaper un chiffre démarre une nouvelle saisie
-    total = null;
-    hasPlus = false;
     current = "0";
+    total = null;
+    operator = null;
     justEvaluated = false;
   }
 
-  if (current === "0") current = d;
-  else current += d;
+  if (current === "0") {
+    current = digit;
+  } else {
+    current += digit;
+  }
 
   render();
 }
 
 function inputDot() {
-  if (justEvaluated) {
-    total = null;
-    hasPlus = false;
-    current = "0";
-    justEvaluated = false;
+  if (!current.includes(".")) {
+    current += ".";
   }
-
-  if (!current.includes(".")) current += ".";
   render();
 }
 
-function pressPlus() {
-  if (justEvaluated) justEvaluated = false;
-
+function setOperator(op) {
   if (total === null) {
-    total = parseFloatSafe(current);
-  } else if (hasPlus) {
-    // si on appuie plusieurs fois sur +, on accumule
-    total = total + parseFloatSafe(current);
+    total = parseFloat(current);
+  } else if (operator !== null) {
+    total = calculatePreview();
   }
 
-  hasPlus = true;
+  operator = op;
   current = "0";
+  justEvaluated = false;
   render();
 }
 
 function equals() {
-  if (total === null) {
-    render();
-    return;
-  }
-  if (hasPlus) {
-    total = total + parseFloatSafe(current);
-    current = formatNumber(total);
-    hasPlus = false;
-    total = null;
-    justEvaluated = true;
-  }
+  if (operator === null || total === null) return;
+
+  total = calculatePreview();
+  current = total.toString();
+  operator = null;
+  justEvaluated = true;
   render();
 }
 
@@ -98,57 +99,49 @@ function clearEntry() {
   render();
 }
 
-function backspace() {
-  if (justEvaluated) {
-    // après =, backspace agit sur current
-    justEvaluated = false;
-  }
-
-  if (current.length <= 1) current = "0";
-  else current = current.slice(0, -1);
-
-  // si ça finit par ".", on l'enlève
-  if (current.endsWith(".")) current = current.slice(0, -1) || "0";
-
-  render();
-}
-
 function resetAll() {
   current = "0";
   total = null;
-  hasPlus = false;
+  operator = null;
   justEvaluated = false;
   render();
 }
 
-// Clicks
+/* Boutons */
 document.querySelectorAll("[data-digit]").forEach(btn => {
   btn.addEventListener("click", () => inputDigit(btn.dataset.digit));
 });
 
-document.querySelectorAll("[data-action]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const a = btn.dataset.action;
-    if (a === "dot") inputDot();
-    if (a === "plus") pressPlus();
-    if (a === "equals") equals();
-    if (a === "clear") clearEntry();
-    if (a === "back") backspace();
-    if (a === "reset") resetAll();
-  });
-});
+document.querySelector("[data-action='plus']")
+  ?.addEventListener("click", () => setOperator("+"));
 
-// Clavier
+document.querySelector("[data-action='minus']")
+  ?.addEventListener("click", () => setOperator("-"));
+
+document.querySelector("[data-action='multiply']")
+  ?.addEventListener("click", () => setOperator("*"));
+
+document.querySelector("[data-action='equals']")
+  ?.addEventListener("click", equals);
+
+document.querySelector("[data-action='dot']")
+  ?.addEventListener("click", inputDot);
+
+document.querySelector("[data-action='clear']")
+  ?.addEventListener("click", clearEntry);
+
+document.querySelector("[data-action='reset']")
+  ?.addEventListener("click", resetAll);
+
+/* Clavier */
 window.addEventListener("keydown", (e) => {
-  const k = e.key;
-
-  if (k >= "0" && k <= "9") return inputDigit(k);
-  if (k === ".") return inputDot();
-  if (k === "+") return pressPlus();
-  if (k === "Enter" || k === "=") return equals();
-  if (k === "Backspace") return backspace();
-  if (k === "Escape") return resetAll();
+  if (e.key >= "0" && e.key <= "9") inputDigit(e.key);
+  if (e.key === ".") inputDot();
+  if (e.key === "+") setOperator("+");
+  if (e.key === "-") setOperator("-");
+  if (e.key === "*") setOperator("*");
+  if (e.key === "Enter") equals();
+  if (e.key === "Escape") resetAll();
 });
 
-// init
 render();
