@@ -1,2 +1,4 @@
-## Opération (v1)
-Additon
+## Opérations
+- [x] Addition
+- [x] Soustraction
+- [ ] Multiplication
