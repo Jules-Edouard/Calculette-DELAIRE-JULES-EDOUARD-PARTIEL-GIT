@@ -1,4 +1,4 @@
 # Calculette-DELAIRE-JULES-EDOUARD-PARTIEL-GIT
--[] Addition
+-[X] Addition
 -[] Soustraction
 -[] Multiplication
